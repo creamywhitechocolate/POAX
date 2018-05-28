@@ -1,10 +1,11 @@
 import pygame
 import time
+import random
 
 pygame.init()
 
-display_width = 800
-display_height = 600
+display_width = 1000
+display_height = 1000
 
 black = (0,0,0)
 brown = (200, 155, 105)
@@ -18,6 +19,10 @@ pygame.display.set_caption('Maze')
 clock = pygame.time.Clock()
 
 charImg = pygame.image.load('not the main.png')
+
+#HEDGE CLASS
+def hedge(hedgex, hedgey, hedgew, hedgeh, colour):
+    pygame.draw.rect(gameDisplay, colour, [hedgex, hedgey, hedgew, hedgeh])
 
 def char(x,y):
     gameDisplay.blit(charImg,(x,y))
@@ -39,12 +44,23 @@ def message_display(text):
 
     game_loop()
 
+def crash():
+    message_display("you crashed")
+
 def game_loop():
     x = (display_width * 0.45)
     y = (display_height * 0.8)
 
+#Character
     x_change = 0
     y_change = 0
+#Hedge
+    hedge_startx = 0
+    hedge_starty = 0
+    hedge_speed = 7
+    hedge_width = 1000
+    hedge_height = 75
+    
 
     gameExit = False
 
@@ -77,16 +93,15 @@ def game_loop():
         gameDisplay.fill(brown)
         char(x,y)
 
+#HEDGE
+        hedge(hedge_startx, hedge_starty, hedge_width, hedge_height, black)
+        char(x,y)
+
         if x > display_width - char_width or x < 0:
             crash()
         if y > display_width - char_height or y < 0:
             crash()
 
-#PLAYER BOUNDARIES
-def crash():
-    message_display("you crashed")
-            
-        
         pygame.display.update()
         clock.tick(60)
 
