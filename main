@@ -62,9 +62,9 @@ def game_loop():
     hedge_height = 75
     
 
-    gameExit = False
+    exitgame = False
 
-    while not gameExit:
+    while not exitgame:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -75,11 +75,15 @@ def game_loop():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     x_change = -5
+                    y_change = 0
                 elif event.key == pygame.K_RIGHT:
                     x_change = 5
+                    y_change = 0
                 elif event.key == pygame.K_UP:
+                    x_change = 0
                     y_change = -5
                 elif event.key == pygame.K_DOWN:
+                    x_change = 0
                     y_change = 5
 
             if event.type == pygame.KEYUP:
