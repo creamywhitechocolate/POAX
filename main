@@ -1,114 +1,146 @@
+# IMPORTS
 import pygame
-import time
+import sys
 import random
 
 pygame.init()
 
-display_width = 1000
-display_height = 1000
+# DISPLAY
+TILE = 75
+WIDTH = 10
+HEIGHT = 8
 
-black = (0,0,0)
-brown = (200, 155, 105)
-red = (255,0,0)
+# COLOURS (R,G,B)
+TEAL = (148,216,219)
+WHITE = (255,255,255)
 
-char_width = 73
-char_height = 70
+# FONTS
+BARFONT = pygame.font.Font('freesansbold.ttf',18)
 
-gameDisplay = pygame.display.set_mode((display_width,display_height))
-pygame.display.set_caption('Maze')
-clock = pygame.time.Clock()
+# NUMBER TILES
+ZERO = 0
+ONE = 1
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+SIX = 6
+SEVEN = 7
+EIGHT = 8
+NINE = 9
+numbers = [ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE]
 
-charImg = pygame.image.load('not the main.png')
+# randomly generate tilemap
+tilemap = [[random.choice(numbers) for w in range(WIDTH)] for h in range(HEIGHT)]
 
-#HEDGE CLASS
-def hedge(hedgex, hedgey, hedgew, hedgeh, colour):
-    pygame.draw.rect(gameDisplay, colour, [hedgex, hedgey, hedgew, hedgeh])
+# TEXTURES
+# load tile images
+tile0_img = pygame.image.load('tile0.png')
+tile1_img = pygame.image.load('tile1.png')
+tile2_img = pygame.image.load('tile2.png')
+tile3_img = pygame.image.load('tile3.png')
+tile4_img = pygame.image.load('tile4.png')
+tile5_img = pygame.image.load('tile5.png')
+tile6_img = pygame.image.load('tile6.png')
+tile7_img = pygame.image.load('tile7.png')
+tile8_img = pygame.image.load('tile8.png')
+tile9_img = pygame.image.load('tile9.png')
+
+# assign scaled image to numbers
+textures = {
+            ZERO : pygame.transform.scale(tile0_img, (TILE,TILE)),
+            ONE : pygame.transform.scale(tile1_img, (TILE,TILE)),
+            TWO : pygame.transform.scale(tile2_img, (TILE,TILE)),
+            THREE : pygame.transform.scale(tile3_img, (TILE,TILE)),
+            FOUR : pygame.transform.scale(tile4_img, (TILE,TILE)),
+            FIVE : pygame.transform.scale(tile5_img, (TILE,TILE)),
+            SIX : pygame.transform.scale(tile6_img, (TILE,TILE)),
+            SEVEN : pygame.transform.scale(tile7_img, (TILE,TILE)),
+            EIGHT : pygame.transform.scale(tile8_img, (TILE,TILE)),
+            NINE : pygame.transform.scale(tile9_img, (TILE,TILE))
+          }
+
+# PLAYER (width, height, speed, image)
+char_w = 50
+char_h = 60
+char_s = 2
+charImg = pygame.image.load('idle1.png')
+charImg = pygame.transform.scale(charImg, (char_w,char_h))
 
 def char(x,y):
-    gameDisplay.blit(charImg,(x,y))
+    DISPLAY.blit(charImg,(x,y))
 
-def text_objects(text, font):
-    textSurface = font.render(text, True, black)
-    return textSurface, textSurface.get_rect()
+# set display
+DISPLAY = pygame.display.set_mode((WIDTH*TILE,HEIGHT*TILE + 50))
+pygame.display.set_caption('GAME')
 
-#FORMAT TEXT
-def message_display(text):
-    largeText = pygame.font.Font('freesansbold.ttf',90)
-    TextSurf, TextRect = text_objects(text, largeText)
-    TextRect.center = ((display_width/2),(display_height/2))
-    gameDisplay.blit(TextSurf, TextRect)
-
-    pygame.display.update()
-
-    time.sleep(2)
-
-    game_loop()
-
-def crash():
-    message_display("you crashed")
-
-def game_loop():
-    x = (display_width * 0.45)
-    y = (display_height * 0.8)
-
-#Character
+# LOOP
+def loop():
+    x = (TILE*WIDTH*0.5)
+    y = (TILE*HEIGHT*0.5)
     x_change = 0
     y_change = 0
-#Hedge
-    hedge_startx = 0
-    hedge_starty = 0
-    hedge_speed = 7
-    hedge_width = 1000
-    hedge_height = 75
-    
 
-    exitgame = False
+    while True:
 
-    while not exitgame:
+        DISPLAY.fill(TEAL)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
 
-#CHARACTER MOVMEMENT
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x_change = -5
-                    y_change = 0
-                elif event.key == pygame.K_RIGHT:
-                    x_change = 5
-                    y_change = 0
-                elif event.key == pygame.K_UP:
-                    x_change = 0
-                    y_change = -5
-                elif event.key == pygame.K_DOWN:
-                    x_change = 0
-                    y_change = 5
+        # CREATE MAP
+        row = 0
+        column = 0
+        # choose row
+        for row in range(HEIGHT):
+           # choose column
+           for column in range(WIDTH):
+               # draw number tile
+               DISPLAY.blit(textures[tilemap[row][column]],(column*TILE,row*TILE,TILE,TILE))
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT or event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                    x_change = 0
-                    y_change = 0
+        # TASKBAR
+        textobj = BARFONT.render('Score:', True, WHITE, TEAL)
+        DISPLAY.blit(textobj,(10, HEIGHT*TILE + 20))
+
+        # MOVE CHARACTER
+        if event.type == pygame.KEYDOWN:
+            # left key
+            if event.key == pygame.K_LEFT:
+                x_change = - char_s
+                y_change = 0
+            # right
+            elif event.key == pygame.K_RIGHT:
+                x_change = char_s
+                y_change = 0
+            elif event.key == pygame.K_UP:
+                x_change = 0
+                y_change = - char_s
+            elif event.key == pygame.K_DOWN:
+                x_change = 0
+                y_change = char_s
+                        
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT or event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                x_change = 0
+                y_change = 0
 
         x += x_change
         y += y_change
-
-        gameDisplay.fill(brown)
         char(x,y)
 
-#HEDGE
-        hedge(hedge_startx, hedge_starty, hedge_width, hedge_height, black)
-        char(x,y)
-
-        if x > display_width - char_width or x < 0:
-            crash()
-        if y > display_width - char_height or y < 0:
-            crash()
+        if x > WIDTH*TILE - char_w or x < 0:
+            x = (TILE*WIDTH*0.5)
+            y = (TILE*HEIGHT*0.5)
+        if y > HEIGHT*TILE - char_h or y < 0:
+            x = (TILE*WIDTH*0.5)
+            y = (TILE*HEIGHT*0.5)
 
         pygame.display.update()
-        clock.tick(60)
 
-game_loop()
+loop()
 pygame.quit()
 quit()
+
+
