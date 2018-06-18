@@ -70,6 +70,9 @@ tilemap = [[random.choice(numbers) for w in range(WIDTH)] for h in range(HEIGHT)
 def loop():
     
     current_tile = '?'
+    num1 = '?'
+    num2 = '?'
+    score = 0
     newquestion = False
 
     while True:
@@ -104,6 +107,11 @@ def loop():
                     # set answer to tile at player's current position
                     current_tile = tilemap[char_pos[1]][char_pos[0]]
 
+                if event.key == pygame.K_q:
+                    num1 = random.randint(0,5)
+                    num2 = random.randint(0,5)
+                    answer = num1 + num2
+
         for row in range(HEIGHT):
                          for column in range(WIDTH):
                              DISPLAY.blit(textures[tilemap[row][column]],(column*TILE,row*TILE))
@@ -111,14 +119,16 @@ def loop():
         DISPLAY.blit(char,(char_pos[0]*TILE, char_pos[1]*TILE))
     
         # print answer
-        SCOREFONT = pygame.font.Font('freesansbold.ttf', 18)
-        textobj = SCOREFONT.render(str(current_tile), True, WHITE, TEAL)
-        DISPLAY.blit(textobj, (10, HEIGHT*TILE + 20))
+        BARFONT = pygame.font.Font('freesansbold.ttf', 18)
+        score = BARFONT.render('Score: ' + str(score), True, WHITE, TEAL)
+        DISPLAY.blit(answer, (10, HEIGHT*TILE + 20))
+
+        question = BARFONT.render(str(num1) + ' + ' + str(num2) + '=' + str(current_tile), True, WHITE, TEAL)
+        DISPLAY.blit(question,(WIDTH*TILE*0.5, HEIGHT*TILE + 50))
     
         pygame.display.update()
 
-loop()
-        
+loop() 
     
 
 
