@@ -24,7 +24,6 @@ WHITE = (255,255,255)
 BLACK = (0,0,0)
 
 # Number tiles
-ZERO = 0
 ONE = 1
 TWO = 2
 THREE = 3
@@ -34,10 +33,10 @@ SIX = 6
 SEVEN = 7
 EIGHT = 8
 NINE = 9
-numbers = [ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE]
+TEN = 10
+numbers = [ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN]
 
 # textures
-tile0_img = pygame.image.load('tile0.png')
 tile1_img = pygame.image.load('tile1.png')
 tile2_img = pygame.image.load('tile2.png')
 tile3_img = pygame.image.load('tile3.png')
@@ -47,10 +46,10 @@ tile6_img = pygame.image.load('tile6.png')
 tile7_img = pygame.image.load('tile7.png')
 tile8_img = pygame.image.load('tile8.png')
 tile9_img = pygame.image.load('tile9.png')
+tile10_img = pygame.image.load('tile10.png')
 
 # assign scaled image to numbers
 textures = {
-            ZERO : pygame.transform.scale(tile0_img, (TILE,TILE)),
             ONE : pygame.transform.scale(tile1_img, (TILE,TILE)),
             TWO : pygame.transform.scale(tile2_img, (TILE,TILE)),
             THREE : pygame.transform.scale(tile3_img, (TILE,TILE)),
@@ -59,7 +58,8 @@ textures = {
             SIX : pygame.transform.scale(tile6_img, (TILE,TILE)),
             SEVEN : pygame.transform.scale(tile7_img, (TILE,TILE)),
             EIGHT : pygame.transform.scale(tile8_img, (TILE,TILE)),
-            NINE : pygame.transform.scale(tile9_img, (TILE,TILE))
+            NINE : pygame.transform.scale(tile9_img, (TILE,TILE)),
+            TEN : pygame.transform.scale(tile10_img, (TILE,TILE)),
           }
 
 
@@ -74,7 +74,7 @@ char_pos = [0,0]
 
 # Set window
 pygame.init()
-DISPLAY = pygame.display.set_mode((WIDTH*TILE,HEIGHT*TILE + 100))
+DISPLAY = pygame.display.set_mode((WIDTH*TILE,HEIGHT*TILE + 110))
 pygame.display.set_caption('Math Tiles')
 
 # Start screen
@@ -82,11 +82,31 @@ def start():
     start = True
 
     while start:
-        DISPLAY.fill(WHITE)
+        DISPLAY.fill(TEAL)
         # display title and instructions
-        title_img = pygame.image.load('title.png')
-        title = pygame.transform.scale(title_img, (500, 500))
-        DISPLAY.blit(title, (10, 100))
+        TITLEFONT = pygame.font.Font('pixelade.ttf', 60)
+        print_title = TITLEFONT.render('MATH TILES', True, WHITE, TEAL)
+        title_rect = print_title.get_rect(center=(WIDTH*TILE/2, HEIGHT*TILE/2))
+        DISPLAY.blit(print_title, title_rect)
+        
+        BARFONT = pygame.font.Font('pixelade.ttf', 25)
+        print_intro1 = BARFONT.render("Press 'Q' to start the game.", True, WHITE, TEAL)        
+        intro1_rect = print_intro1.get_rect(center=(WIDTH*TILE/2, 325))
+        DISPLAY.blit(print_intro1, intro1_rect)
+        
+        print_intro2= BARFONT.render("Use the arrow keys to move around.", True, WHITE, TEAL)                
+        intro2_rect = print_intro2.get_rect(center=(WIDTH*TILE/2, 350))
+        DISPLAY.blit(print_intro2, intro2_rect)
+        
+        print_intro3= BARFONT.render("Use the spacebar to answer the question.", True, WHITE, TEAL)
+        intro3_rect = print_intro3.get_rect(center=(WIDTH*TILE/2, 375))
+        DISPLAY.blit(print_intro3, intro3_rect)
+        
+        print_intro4= BARFONT.render("Press any key to continue...", True, WHITE, TEAL)
+        intro4_rect = print_intro4.get_rect(center=(WIDTH*TILE/2, 400))
+        DISPLAY.blit(print_intro4, intro4_rect)      
+        
+        
         pygame.display.update()
 
         for event in pygame.event.get():            
@@ -106,7 +126,16 @@ def loop():
     score = 0
     life = 5
     count = 0
+    mistakes = 0
     answered = True
+    startgame = False
+
+    #fonts
+    SMALLFONT = pygame.font.Font('pixelade.ttf', 20)
+    BARFONT = pygame.font.Font('pixelade.ttf', 25)
+    BIGFONT = pygame.font.Font('pixelade.ttf', 30)
+    QFONT = pygame.font.Font('pixelade.ttf', 40)
+    TITLEFONT = pygame.font.Font('pixelade.ttf', 60)
 
     while True:
 
@@ -137,31 +166,35 @@ def loop():
     
                 # Selecting tile
                 # space key pressedp
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and startgame == True:
                     # set answer to tile at player's current position
                     current_tile = tilemap[char_pos[1]][char_pos[0]]
                     if current_tile == answer:
                         score += 1
-                        count += 1
-                        num1 = random.randint(0,5)
-                        num2 = random.randint(0,5)
-                        answer = num1 + num2
-                        current_tile = '?'
-                        answered = False
+                        if count <= 10:
+                            num1 = random.randint(0,4)
+                            num2 = random.randint(0,5)
+                            answer = num1 + num2
+                            count += 1
+                            current_tile = '?'
+                            answered = False
                     elif current_tile != answer:
                         life -= 1
-                        count += 1
-                        answered = True
+                        mistakes +=1
 
-                # New question
-                if event.key == pygame.K_q:
+                # Generate first question
+                if event.key == pygame.K_q and startgame == False:
+                    startgame = True
                     if answered == True:
-                        num1 = random.randint(0,4)
+                        num1 = random.randint(1,5)
                         num2 = random.randint(0,5)
                         answer = num1 + num2
+                        count +=1
                         current_tile = '?'
                         answered = False
-        
+                        
+                    
+                        
         # print tilemap
         # select y
         for row in range(HEIGHT):
@@ -173,27 +206,86 @@ def loop():
         # update character position
         DISPLAY.blit(char,(char_pos[0]*TILE, char_pos[1]*TILE))
     
-        # print score
-        BARFONT = pygame.font.Font('freesansbold.ttf', 18)
+        # print stats
+        # score
         print_score = BARFONT.render('Score: ' + str(score), True, WHITE, TEAL)
-        DISPLAY.blit(print_score, (10, HEIGHT*TILE + 20))
+        DISPLAY.blit(print_score, (10, HEIGHT*TILE + 10))
+        # lives
         print_lives = BARFONT.render('Lives: ' + str(life), True, WHITE, TEAL)
-        DISPLAY.blit(print_lives, (10, HEIGHT*TILE + 40))
+        DISPLAY.blit(print_lives, (10, HEIGHT*TILE + 40))        
+        # question no.
+        if count <= 10:
+            print_count = BARFONT.render('Question: ' + str(count) + '/10', True, WHITE, TEAL)
+            DISPLAY.blit(print_count, (10, HEIGHT*TILE + 70))
+        # instructions
+        if startgame == False:
+            print_q = SMALLFONT.render("Press 'Q' to start the game.", True, WHITE,TEAL)
+        elif startgame == True:
+            print_q = SMALLFONT.render("Use spacebar to choose answer.", True, WHITE,TEAL)
+        q_rect = print_q.get_rect(center=(WIDTH*TILE/2, HEIGHT*TILE + 15))
+        DISPLAY.blit(print_q, q_rect)
 
+        
         # print question
-        question = BARFONT.render(str(num1) + ' + ' + str(num2) + ' = ' + str(current_tile), True, WHITE, TEAL)
-        DISPLAY.blit(question,(220, HEIGHT*TILE + 50))
+        question = QFONT.render(str(num1) + ' + ' + str(num2) + ' = ' + str(current_tile), True, WHITE, TEAL)
+        DISPLAY.blit(question,(220, HEIGHT*TILE + 30))
 
         if life == 0:
-            BIGFONT = pygame.font.Font('freesansbold.ttf', 20)
-            print_lose = BIGFONT.render('Game over! Press any key to return to menu!', True, WHITE, BLACK)
-            DISPLAY.blit(print_lose, (55, 250))
+            pygame.draw.rect(DISPLAY, TEAL,(0, HEIGHT*TILE, WIDTH*TILE, 110))
+            if 7 <= score <= 9:
+                print_over = TITLEFONT.render('So close!', True, BLACK, WHITE)
+            if 4 <= score <= 6:
+                print_over = TITLEFONT.render('Awesome work!', True, BLACK, WHITE)            
+            if score <= 3:
+                print_over = TITLEFONT.render('Great effort!', True, BLACK, WHITE)
+            
+            over_rect = print_over.get_rect(center=(WIDTH*TILE/2, 240))
+            DISPLAY.blit(print_over, over_rect)
+
+            print_result = BIGFONT.render('You completed ' + str(score) + ' questions with ' + str(mistakes) + ' mistakes!', True, WHITE, BLACK)
+            result_rect = print_result.get_rect(center=(WIDTH*TILE/2, 300))
+            DISPLAY.blit(print_result, result_rect)
+
+            print_again = BIGFONT.render('Do you want to play again?', True, WHITE, BLACK)
+            again_rect = print_again.get_rect(center=(WIDTH*TILE/2, 330))
+            DISPLAY.blit(print_again, again_rect)
+            
+            print_return = BIGFONT.render('Press any key to return to menu...', True, WHITE, BLACK)
+            return_rect = print_return.get_rect(center=(WIDTH*TILE/2, 330))
+            DISPLAY.blit(print_return, return_rect)
+                        
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     start()
 
-        if count >= 10:
-            DISPLAY.fill(WHITE)
+        elif count > 10:
+            pygame.draw.rect(DISPLAY, TEAL,(0, HEIGHT*TILE, WIDTH*TILE, 110))
+            if mistakes == 0:
+                print_over = TITLEFONT.render('EXTRAORDINARY!', True, BLACK, WHITE)
+                print_result = BIGFONT.render('You completed the 10 questions with no mistakes!', True, WHITE, BLACK)
+                print_again = BIGFONT.render('Do you want to play again?', True, WHITE, BLACK)
+            elif mistakes > 0:
+                print_result = BIGFONT.render('You completed the 10 questions with ' + str(mistakes) + ' mistakes!', True, WHITE, BLACK)
+                print_again = BIGFONT.render('Try again for a perfect score?', True, WHITE, BLACK)
+                if mistakes < 2:
+                    print_over = TITLEFONT.render('Awesome work!', True, BLACK, WHITE)
+                elif mistakes > 2:
+                    print_over = TITLEFONT.render('Great effort!', True, BLACK, WHITE)
+            
+            over_rect = print_over.get_rect(center=(WIDTH*TILE/2, 240))
+            DISPLAY.blit(print_over, over_rect)
+            result_rect = print_result.get_rect(center=(WIDTH*TILE/2, 300))
+            DISPLAY.blit(print_result, result_rect)
+            again_rect = print_again.get_rect(center=(WIDTH*TILE/2, 330))
+            DISPLAY.blit(print_again, again_rect)
+            
+            print_return = BIGFONT.render('Press any key to return to menu...', True, WHITE, BLACK)
+            return_rect = print_return.get_rect(center=(WIDTH*TILE/2, 360))
+            DISPLAY.blit(print_return, return_rect)
+                        
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    start()
    
         pygame.display.update()
         
