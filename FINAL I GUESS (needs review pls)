@@ -1,0 +1,200 @@
+'''
+>>> MATH TILES
+>>> Benjamin Camua, Nathan Zeng, Darwin Wu, Julia Dungca
+
+Math Tiles is arithmetic game where the player must navigate
+their character around the screen to successfully answer basic
+addition questions.
+'''
+
+# Imports
+import pygame
+import sys
+import random
+import time
+
+# Screen dimensions 
+TILE = 60
+WIDTH = 9
+HEIGHT = 9
+
+# Colours (R,G,B)
+TEAL = (148,216,219)
+WHITE = (255,255,255)
+BLACK = (0,0,0)
+
+# Number tiles
+ZERO = 0
+ONE = 1
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+SIX = 6
+SEVEN = 7
+EIGHT = 8
+NINE = 9
+numbers = [ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE]
+
+# textures
+tile0_img = pygame.image.load('tile0.png')
+tile1_img = pygame.image.load('tile1.png')
+tile2_img = pygame.image.load('tile2.png')
+tile3_img = pygame.image.load('tile3.png')
+tile4_img = pygame.image.load('tile4.png')
+tile5_img = pygame.image.load('tile5.png')
+tile6_img = pygame.image.load('tile6.png')
+tile7_img = pygame.image.load('tile7.png')
+tile8_img = pygame.image.load('tile8.png')
+tile9_img = pygame.image.load('tile9.png')
+
+# assign scaled image to numbers
+textures = {
+            ZERO : pygame.transform.scale(tile0_img, (TILE,TILE)),
+            ONE : pygame.transform.scale(tile1_img, (TILE,TILE)),
+            TWO : pygame.transform.scale(tile2_img, (TILE,TILE)),
+            THREE : pygame.transform.scale(tile3_img, (TILE,TILE)),
+            FOUR : pygame.transform.scale(tile4_img, (TILE,TILE)),
+            FIVE : pygame.transform.scale(tile5_img, (TILE,TILE)),
+            SIX : pygame.transform.scale(tile6_img, (TILE,TILE)),
+            SEVEN : pygame.transform.scale(tile7_img, (TILE,TILE)),
+            EIGHT : pygame.transform.scale(tile8_img, (TILE,TILE)),
+            NINE : pygame.transform.scale(tile9_img, (TILE,TILE))
+          }
+
+
+# Generate tilemap
+# select tile and randomly assign number
+tilemap = [[random.choice(numbers) for w in range(WIDTH)] for h in range(HEIGHT)]
+
+# Player
+char_img = pygame.image.load('idle1.png')
+char = pygame.transform.scale(char_img, (TILE,TILE))
+char_pos = [0,0]
+
+# Set window
+pygame.init()
+DISPLAY = pygame.display.set_mode((WIDTH*TILE,HEIGHT*TILE + 100))
+pygame.display.set_caption('Math Tiles')
+
+# Start screen
+def start():
+    start = True
+
+    while start:
+        DISPLAY.fill(WHITE)
+        # display title and instructions
+        title_img = pygame.image.load('title.png')
+        title = pygame.transform.scale(title_img, (500, 500))
+        DISPLAY.blit(title, (10, 100))
+        pygame.display.update()
+
+        for event in pygame.event.get():            
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                loop()
+
+# Main loop
+def loop():
+    # important variables
+    num1 = '?'
+    num2 = '?'
+    current_tile = '?'
+    answer = 0
+    score = 0
+    life = 5
+    count = 0
+    answered = True
+
+    while True:
+
+        # set bg colour    
+        DISPLAY.fill(TEAL)
+
+        # Key presses
+        for event in pygame.event.get():
+            # quit game
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            # Character movement
+            if event.type == pygame.KEYDOWN:
+                # left key
+                if event.key == pygame.K_LEFT and char_pos[0] > 0:
+                    char_pos[0] -= 1
+                # right key
+                elif event.key == pygame.K_RIGHT and char_pos[0] < WIDTH - 1:
+                    char_pos[0] += 1
+                # up key
+                elif event.key == pygame.K_UP and char_pos[1] > 0:
+                    char_pos[1] -= 1
+                # down key
+                elif event.key == pygame.K_DOWN and char_pos[1] < HEIGHT - 1:
+                    char_pos[1] += 1
+    
+                # Selecting tile
+                # space key pressedp
+                if event.key == pygame.K_SPACE:
+                    # set answer to tile at player's current position
+                    current_tile = tilemap[char_pos[1]][char_pos[0]]
+                    if current_tile == answer:
+                        score += 1
+                        count += 1
+                        num1 = random.randint(0,5)
+                        num2 = random.randint(0,5)
+                        answer = num1 + num2
+                        current_tile = '?'
+                        answered = False
+                    elif current_tile != answer:
+                        life -= 1
+                        count += 1
+                        answered = True
+
+                # New question
+                if event.key == pygame.K_q:
+                    if answered == True:
+                        num1 = random.randint(0,4)
+                        num2 = random.randint(0,5)
+                        answer = num1 + num2
+                        current_tile = '?'
+                        answered = False
+        
+        # print tilemap
+        # select y
+        for row in range(HEIGHT):
+                         # select x
+                         for column in range(WIDTH):
+                             # print number tile
+                             DISPLAY.blit(textures[tilemap[row][column]],(column*TILE,row*TILE))
+    
+        # update character position
+        DISPLAY.blit(char,(char_pos[0]*TILE, char_pos[1]*TILE))
+    
+        # print score
+        BARFONT = pygame.font.Font('freesansbold.ttf', 18)
+        print_score = BARFONT.render('Score: ' + str(score), True, WHITE, TEAL)
+        DISPLAY.blit(print_score, (10, HEIGHT*TILE + 20))
+        print_lives = BARFONT.render('Lives: ' + str(life), True, WHITE, TEAL)
+        DISPLAY.blit(print_lives, (10, HEIGHT*TILE + 40))
+
+        # print question
+        question = BARFONT.render(str(num1) + ' + ' + str(num2) + ' = ' + str(current_tile), True, WHITE, TEAL)
+        DISPLAY.blit(question,(220, HEIGHT*TILE + 50))
+
+        if life == 0:
+            BIGFONT = pygame.font.Font('freesansbold.ttf', 20)
+            print_lose = BIGFONT.render('Game over! Press any key to return to menu!', True, WHITE, BLACK)
+            DISPLAY.blit(print_lose, (55, 250))
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    start()
+
+        if count >= 10:
+            DISPLAY.fill(WHITE)
+   
+        pygame.display.update()
+        
+start()
