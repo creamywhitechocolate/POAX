@@ -5,6 +5,8 @@
 Math Tiles is arithmetic game where the player must navigate
 their character around the screen to successfully answer basic
 addition questions.
+
+Pixelade font by astramat
 '''
 
 # Imports
@@ -119,6 +121,7 @@ def start():
 # Main loop
 def loop():
     # important variables
+    char_pos = [0,0]
     num1 = '?'
     num2 = '?'
     current_tile = '?'
@@ -129,6 +132,7 @@ def loop():
     mistakes = 0
     answered = True
     startgame = False
+    gameover = False
 
     #fonts
     SMALLFONT = pygame.font.Font('pixelade.ttf', 20)
@@ -165,22 +169,23 @@ def loop():
                     char_pos[1] += 1
     
                 # Selecting tile
-                # space key pressedp
-                if event.key == pygame.K_SPACE and startgame == True:
-                    # set answer to tile at player's current position
-                    current_tile = tilemap[char_pos[1]][char_pos[0]]
-                    if current_tile == answer:
-                        score += 1
-                        if count <= 10:
-                            num1 = random.randint(0,4)
-                            num2 = random.randint(0,5)
-                            answer = num1 + num2
-                            count += 1
-                            current_tile = '?'
-                            answered = False
-                    elif current_tile != answer:
-                        life -= 1
-                        mistakes +=1
+                # space key pressed
+                if event.key == pygame.K_SPACE:
+                        if startgame == True and gameover == False:
+                            # set answer to tile at player's current position
+                            current_tile = tilemap[char_pos[1]][char_pos[0]]
+                            if current_tile == answer:
+                                score += 1
+                                if count <= 10:
+                                    num1 = random.randint(1,5)
+                                    num2 = random.randint(0,5)
+                                    answer = num1 + num2
+                                    count += 1
+                                    current_tile = '?'
+                                    answered = False
+                            elif current_tile != answer:
+                                life -= 1
+                                mistakes +=1
 
                 # Generate first question
                 if event.key == pygame.K_q and startgame == False:
@@ -231,6 +236,7 @@ def loop():
         DISPLAY.blit(question,(220, HEIGHT*TILE + 30))
 
         if life == 0:
+            gameover = True
             pygame.draw.rect(DISPLAY, TEAL,(0, HEIGHT*TILE, WIDTH*TILE, 110))
             if 7 <= score <= 9:
                 print_over = TITLEFONT.render('So close!', True, BLACK, WHITE)
@@ -238,6 +244,8 @@ def loop():
                 print_over = TITLEFONT.render('Awesome work!', True, BLACK, WHITE)            
             if score <= 3:
                 print_over = TITLEFONT.render('Great effort!', True, BLACK, WHITE)
+            if score == 0:
+                print_over = TITLEFONT.render('Better luck next time!', True, BLACK, WHITE)
             
             over_rect = print_over.get_rect(center=(WIDTH*TILE/2, 240))
             DISPLAY.blit(print_over, over_rect)
@@ -259,6 +267,7 @@ def loop():
                     start()
 
         elif count > 10:
+            gameover = True 
             pygame.draw.rect(DISPLAY, TEAL,(0, HEIGHT*TILE, WIDTH*TILE, 110))
             if mistakes == 0:
                 print_over = TITLEFONT.render('EXTRAORDINARY!', True, BLACK, WHITE)
@@ -290,3 +299,5 @@ def loop():
         pygame.display.update()
         
 start()
+pygame.quit()
+sys.exit()
